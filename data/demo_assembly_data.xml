@@ -2,9 +2,9 @@
 <odoo noupdate="1">
     <record id="demo_assembly_motor_housing" model="ntm.assembly">
         <field name="name">Motor Housing Demo - 8 Nuts</field>
-        <field name="image" type="base64" file="nut_tightening_monitor_v3/static/demo/motor_housing_top_view_demo.png"/>
-        <field name="image_filename">motor_housing_top_view_demo.png</field>
-        <field name="image_mimetype">image/png</field>
+        <field name="image" type="base64" file="nut_tightening_monitor_v3/static/demo/motor_housing_top_view_demo.svg"/>
+        <field name="image_filename">motor_housing_top_view_demo.svg</field>
+        <field name="image_mimetype">image/svg+xml</field>
         <field name="image_width">1200</field>
         <field name="image_height">800</field>
         <field name="state">mapped</field>
