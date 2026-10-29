@@ -73,3 +73,78 @@
 
                 <aside class="ntm_right_column">
                     <section class="ntm_panel ntm_sequence_panel">
+                        <div class="ntm_panel_heading ntm_compact_heading"><div><span class="ntm_section_eyebrow">STEP 2</span><h2>Nut Sequence</h2></div><span class="ntm_count_pill"><t t-esc="state.nuts.length"/> mapped</span></div>
+                        <div class="ntm_sequence_list">
+                            <t t-foreach="state.nuts" t-as="n" t-key="n.id || n.name">
+                                <button t-att-class="'ntm_sequence_row ' + (state.selectedIndex === state.nuts.indexOf(n) ? 'is_selected ' : '') + 'is_' + n.status" t-on-click="() => selectNut(state.nuts.indexOf(n))">
+                                    <span class="ntm_sequence_number" t-esc="n.sequence"/>
+                                    <span class="ntm_sequence_text"><strong t-esc="n.name"/><small><t t-esc="'Sequence ' + n.sequence"/> · <t t-esc="formatNumber(n.roi_x, 1)"/>, <t t-esc="formatNumber(n.roi_y, 1)"/> %</small></span>
+                                    <span t-att-class="'ntm_status_pill status_' + n.status" t-esc="n.status === 'ok' ? 'OK' : n.status === 'nok' ? 'NOK' : n.status === 'running' ? 'CURRENT' : 'PENDING'"/>
+                                </button>
+                            </t>
+                            <div t-if="!state.nuts.length" class="ntm_empty_state"><i class="fa fa-bullseye"/><strong>No nut ROIs yet</strong><span>Upload an image, press Draw ROI, and drag a circle around a nut.</span></div>
+                        </div>
+                    </section>
+
+                    <section class="ntm_panel ntm_setup_panel">
+                        <div class="ntm_panel_heading ntm_compact_heading"><div><span class="ntm_section_eyebrow">STEP 3</span><h2>Selected Nut Setup</h2></div><span t-if="selectedNut" class="ntm_selected_id" t-esc="selectedNut.name"/></div>
+                        <t t-if="selectedNut">
+                            <div class="ntm_setup_scroller">
+                                <div class="ntm_form_section">
+                                    <div class="ntm_form_section_title"><i class="fa fa-tag"/> Identification &amp; ROI</div>
+                                    <div class="ntm_fields_grid">
+                                        <label class="ntm_field ntm_field_wide"><span>Nut ID / Label</span><input class="form-control" type="text" t-att-value="selectedNut.name" t-on-change="ev => updateNut('name', ev)" placeholder="N-01"/></label>
+                                        <label class="ntm_field"><span>Sequence order</span><input class="form-control" type="number" min="1" step="1" t-att-value="selectedNut.sequence" t-on-change="ev => updateNut('sequence', ev)"/></label>
+                                        <label class="ntm_field"><span>ROI radius (%)</span><input class="form-control" type="number" min="0.5" max="20" step="0.1" t-att-value="selectedNut.roi_r" t-on-change="ev => updateNut('roi_r', ev)"/></label>
+                                        <label class="ntm_field"><span>Centre X (%)</span><input class="form-control" type="number" min="0" max="100" step="0.1" t-att-value="selectedNut.roi_x" t-on-change="ev => updateNut('roi_x', ev)"/></label>
+                                        <label class="ntm_field"><span>Centre Y (%)</span><input class="form-control" type="number" min="0" max="100" step="0.1" t-att-value="selectedNut.roi_y" t-on-change="ev => updateNut('roi_y', ev)"/></label>
+                                    </div>
+                                </div>
+                                <div class="ntm_form_section">
+                                    <div class="ntm_form_section_title"><i class="fa fa-crosshairs"/> PLC / Robot Arm Position</div>
+                                    <div class="ntm_fields_grid">
+                                        <label class="ntm_field"><span>Arm X (mm)</span><input class="form-control" type="number" step="0.001" t-att-value="selectedNut.arm_x" t-on-change="ev => updateNut('arm_x', ev)"/></label>
+                                        <label class="ntm_field"><span>Arm Y (mm)</span><input class="form-control" type="number" step="0.001" t-att-value="selectedNut.arm_y" t-on-change="ev => updateNut('arm_y', ev)"/></label>
+                                        <label class="ntm_field"><span>Arm Z (mm)</span><input class="form-control" type="number" step="0.001" t-att-value="selectedNut.arm_z" t-on-change="ev => updateNut('arm_z', ev)"/></label>
+                                        <label class="ntm_field"><span>Encoder count</span><input class="form-control" type="number" step="1" t-att-value="selectedNut.encoder_position" t-on-change="ev => updateNut('encoder_position', ev)"/></label>
+                                    </div>
+                                    <div class="ntm_field_help"><i class="fa fa-info-circle"/> Example values are for simulation only. Enter calibrated PLC/arm coordinates when commissioning hardware.</div>
+                                </div>
+                                <div class="ntm_form_section">
+                                    <div class="ntm_form_section_title"><i class="fa fa-tachometer"/> Torque Limits (Nm)</div>
+                                    <div class="ntm_fields_grid ntm_three_fields">
+                                        <label class="ntm_field"><span>Minimum</span><input class="form-control" type="number" step="0.01" t-att-value="selectedNut.torque_min" t-on-change="ev => updateNut('torque_min', ev)"/></label>
+                                        <label class="ntm_field"><span>Target</span><input class="form-control" type="number" step="0.01" t-att-value="selectedNut.target_torque" t-on-change="ev => updateNut('target_torque', ev)"/></label>
+                                        <label class="ntm_field"><span>Maximum</span><input class="form-control" type="number" step="0.01" t-att-value="selectedNut.torque_max" t-on-change="ev => updateNut('torque_max', ev)"/></label>
+                                    </div>
+                                </div>
+                                <div class="ntm_form_section">
+                                    <div class="ntm_form_section_title"><i class="fa fa-refresh"/> Angle Limits (degrees)</div>
+                                    <div class="ntm_fields_grid ntm_three_fields">
+                                        <label class="ntm_field"><span>Minimum</span><input class="form-control" type="number" step="0.1" t-att-value="selectedNut.angle_min" t-on-change="ev => updateNut('angle_min', ev)"/></label>
+                                        <label class="ntm_field"><span>Target</span><input class="form-control" type="number" step="0.1" t-att-value="selectedNut.target_angle" t-on-change="ev => updateNut('target_angle', ev)"/></label>
+                                        <label class="ntm_field"><span>Maximum</span><input class="form-control" type="number" step="0.1" t-att-value="selectedNut.angle_max" t-on-change="ev => updateNut('angle_max', ev)"/></label>
+                                    </div>
+                                </div>
+                                <div class="ntm_live_result">
+                                    <div><span>Last actual torque</span><strong><t t-esc="formatNumber(selectedNut.actual_torque || 0, 2)"/> Nm</strong></div>
+                                    <div><span>Last actual angle</span><strong><t t-esc="formatNumber(selectedNut.actual_angle || 0, 1)"/>°</strong></div>
+                                    <div><span>Last result</span><strong t-att-class="'result_' + selectedNut.status" t-esc="selectedNut.status.toUpperCase()"/></div>
+                                    <p t-if="selectedNut.failure_reason" class="ntm_failure_reason"><i class="fa fa-exclamation-triangle"/> <t t-esc="selectedNut.failure_reason"/></p>
+                                </div>
+                            </div>
+                            <div class="ntm_setup_footer"><span><i class="fa fa-check-circle"/> Changes are local until saved</span><button class="ntm_btn ntm_btn_primary" t-on-click="saveAssembly"><i class="fa fa-floppy-o"/> Save Mapping</button></div>
+                        </t>
+                        <div t-if="!selectedNut" class="ntm_setup_blank"><i class="fa fa-sliders"/><strong>Select or draw a nut</strong><span>After you draw a ROI, its ID, sequence, PLC position, torque and angle settings are edited here.</span></div>
+                    </section>
+                </aside>
+            </main>
+
+            <footer class="ntm_status_footer">
+                <div class="ntm_footer_mode"><span class="ntm_sim_dot"/> <strong>SIMULATOR MODE</strong><span>No physical PLC connected</span></div>
+                <div class="ntm_footer_message"><i class="fa fa-exchange"/> <t t-esc="currentMessage"/></div>
+                <div class="ntm_footer_safety">For test use only — validate PLC coordinates and tightening limits before machine use.</div>
+            </footer>
+        </div>
+    </t>
+</templates>
