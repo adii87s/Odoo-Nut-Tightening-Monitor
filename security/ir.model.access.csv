@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ntm_assembly_user,ntm.assembly user,model_ntm_assembly,base.group_user,1,1,1,1
+access_ntm_nut_user,ntm.nut user,model_ntm_nut,base.group_user,1,1,1,1
+access_ntm_result_user,ntm.result user,model_ntm_result,base.group_user,1,0,1,0
