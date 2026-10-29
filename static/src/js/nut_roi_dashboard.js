@@ -238,3 +238,123 @@ export class NtmLiveDashboard extends Component {
         };
         this.state.nuts.push(nut);
         this.state.nuts.sort((a, b) => a.sequence - b.sequence || (a.id || 0) - (b.id || 0));
+        this.state.selectedIndex = this.state.nuts.findIndex((n) => n === nut);
+        this.state.drawingRoi = false;
+        this.state.draftRoi = null;
+        this.state.interactionMode = "select";
+        this.drawCanvas();
+        this.notification.add(`${nut.name} created. Assign its sequence, arm position and tightening limits in Nut Setup.`, { type: "success" });
+    }
+
+    nextNutNumber() {
+        let max = 0;
+        for (const nut of this.state.nuts) {
+            const match = String(nut.name || "").match(/(\d+)/);
+            if (match) max = Math.max(max, Number(match[1]));
+        }
+        return max + 1;
+    }
+
+    findNutAt(point) {
+        const rect = this.state.imageRect;
+        let best = -1, bestDistance = Infinity;
+        this.state.nuts.forEach((nut, index) => {
+            const x = rect.x + nut.roi_x / 100 * rect.width;
+            const y = rect.y + nut.roi_y / 100 * rect.height;
+            const radius = (nut.roi_r || 2.5) / 100 * Math.min(rect.width, rect.height);
+            const dist = Math.hypot(point.x - x, point.y - y);
+            if (dist <= Math.max(radius + 9, 16) && dist < bestDistance) { best = index; bestDistance = dist; }
+        });
+        return best;
+    }
+
+    drawCanvas() {
+        const canvas = this.canvasRef?.el;
+        if (!canvas) return;
+        const ctx = canvas.getContext("2d");
+        const w = canvas.width, h = canvas.height;
+        ctx.clearRect(0, 0, w, h);
+        ctx.fillStyle = "#e3e8f2";
+        ctx.fillRect(0, 0, w, h);
+        let rect = { x: 0, y: 0, width: 0, height: 0 };
+        if (this.imageElement && this.imageElement.complete && this.imageElement.naturalWidth) {
+            const scale = Math.min(w / this.imageElement.naturalWidth, h / this.imageElement.naturalHeight);
+            const dw = this.imageElement.naturalWidth * scale;
+            const dh = this.imageElement.naturalHeight * scale;
+            const ox = (w - dw) / 2, oy = (h - dh) / 2;
+            rect = { x: ox, y: oy, width: dw, height: dh };
+            ctx.save();
+            ctx.shadowColor = "rgba(28,35,64,0.12)";
+            ctx.shadowBlur = 10;
+            ctx.drawImage(this.imageElement, ox, oy, dw, dh);
+            ctx.restore();
+        } else {
+            ctx.fillStyle = "#4b5470";
+            ctx.font = "700 23px system-ui, sans-serif";
+            ctx.textAlign = "center";
+            ctx.fillText("Upload an assembly image to begin ROI mapping", w / 2, h / 2 - 8);
+            ctx.font = "15px system-ui, sans-serif";
+            ctx.fillText("Then select Draw ROI and drag a circle around each nut", w / 2, h / 2 + 22);
+        }
+        this.state.imageRect = rect;
+        if (rect.width) {
+            this.drawRois(ctx, rect);
+            if (this.state.draftRoi) this.drawDraftRoi(ctx, this.state.draftRoi);
+        }
+    }
+
+    drawRois(ctx, rect) {
+        this.state.nuts.forEach((nut, index) => {
+            const x = rect.x + nut.roi_x / 100 * rect.width;
+            const y = rect.y + nut.roi_y / 100 * rect.height;
+            const radius = Math.max(12, (nut.roi_r || 2.5) / 100 * Math.min(rect.width, rect.height));
+            const colour = nut.status === "ok" ? "#22b04b" : nut.status === "nok" ? "#dc2626" : "#8a93ad";
+            const selected = index === this.state.selectedIndex;
+            const activeId = Array.isArray(this.state.assembly?.active_nut_id) ? this.state.assembly.active_nut_id[0] : false;
+            const active = Boolean(nut.id && nut.id === activeId) || (this.state.assembly?.state === "running" && selected);
+            ctx.beginPath(); ctx.arc(x, y, radius, 0, Math.PI * 2);
+            ctx.fillStyle = colour + "24"; ctx.fill();
+            if (selected) {
+                ctx.beginPath(); ctx.arc(x, y, radius + 5, 0, Math.PI * 2);
+                ctx.lineWidth = 2; ctx.strokeStyle = "#2b2f8f"; ctx.stroke();
+            }
+            ctx.beginPath(); ctx.arc(x, y, radius, 0, Math.PI * 2);
+            ctx.lineWidth = active ? 5 : 3; ctx.strokeStyle = active ? "#f0a500" : colour; ctx.stroke();
+            ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI * 2); ctx.fillStyle = colour; ctx.fill();
+            const label = nut.name || `N-${String(index + 1).padStart(2, "0")}`;
+            ctx.font = "700 15px system-ui, sans-serif";
+            const labelWidth = ctx.measureText(label).width + 16;
+            const labelY = y - radius - 12;
+            ctx.fillStyle = selected ? "#2b2f8f" : colour;
+            ctx.beginPath();
+            if (ctx.roundRect) ctx.roundRect(x - labelWidth / 2, labelY - 17, labelWidth, 23, 5);
+            else ctx.rect(x - labelWidth / 2, labelY - 17, labelWidth, 23);
+            ctx.fill();
+            ctx.fillStyle = "#ffffff"; ctx.textAlign = "center"; ctx.fillText(label, x, labelY - 1);
+            if (active) {
+                ctx.beginPath(); ctx.arc(x, y, radius + 9, 0, Math.PI * 2);
+                ctx.setLineDash([5, 5]); ctx.lineWidth = 2; ctx.strokeStyle = "#f0a500"; ctx.stroke(); ctx.setLineDash([]);
+            }
+        });
+    }
+
+    drawDraftRoi(ctx, draft) {
+        const radius = Math.max(2, draft.radius || 0);
+        ctx.beginPath(); ctx.arc(draft.startX, draft.startY, radius, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(43,47,143,0.12)"; ctx.fill();
+        ctx.setLineDash([7, 5]); ctx.strokeStyle = "#2b2f8f"; ctx.lineWidth = 3; ctx.stroke(); ctx.setLineDash([]);
+        ctx.beginPath(); ctx.arc(draft.startX, draft.startY, 3, 0, Math.PI * 2); ctx.fillStyle = "#2b2f8f"; ctx.fill();
+    }
+
+    updateNut(field, ev) {
+        const nut = this.selectedNut;
+        if (!nut) return;
+        const type = ev.target.type;
+        const value = type === "number" ? Number(ev.target.value) : ev.target.value;
+        nut[field] = value;
+        if (["name", "roi_x", "roi_y", "roi_r"].includes(field)) this.drawCanvas();
+        if (field === "sequence") {
+            this.state.nuts.sort((a, b) => a.sequence - b.sequence || (a.id || 0) - (b.id || 0));
+            this.state.selectedIndex = this.state.nuts.indexOf(nut);
+        }
+    }
