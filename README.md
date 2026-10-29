@@ -1,45 +1,59 @@
 # Odoo Nut Tightening Monitor
 
-Independent Odoo 18 addon for image-based nut ROI mapping and simulated tightening validation.
+An independent Odoo 18 addon for image-based nut ROI mapping and simulated tightening validation.
 
 ## Features
 
 - Upload a top-view assembly image.
 - Draw circular ROI markers directly on the image by clicking and dragging.
-- Auto-assign nut IDs and sequence numbers.
-- Configure ROI coordinates, PLC/arm X/Y/Z, encoder counts, torque limits and angle limits.
-- Visual pending/current/OK/NOK states and simulated tightening result history.
-- Demo image and sample assembly data for local tests.
-- Separate addon; does not merge or modify the office Work Instruction module.
+- Automatically assign nut IDs and tightening sequence numbers.
+- Configure ROI coordinates, PLC/arm X/Y/Z positions, encoder counts, torque limits and angle limits.
+- Visual pending/current/OK/NOK statuses and simulated tightening result history.
+- Includes a demo motor-housing assembly with eight sample nut mappings.
+- Uses an indigo/white MES-style interface while remaining independent of the office Control Plan Work Instruction addon.
 
-## Install
+## Install into a local Odoo setup
 
-Copy the `nut_tightening_monitor_v3` folder into your Odoo custom addons path.
+Open PowerShell and go to your custom addons folder:
 
-First install:
+```powershell
+cd "C:\Users\vegal\OneDrive\Desktop\odoo\odoo18\custom_addons"
+git clone https://github.com/adii87s/Odoo-Nut-Tightening-Monitor.git nut_tightening_monitor_v3
+```
+
+Then install the module into the test database:
+
 ```powershell
 cd "C:\Users\vegal\OneDrive\Desktop\odoo\odoo18"
 .\.venv\Scripts\python.exe .\odoo-bin -c ..\conf\odoo.conf -d nut_tightening_test -i nut_tightening_monitor_v3 --stop-after-init
 ```
 
-Update after pulling new commits:
+## Update after new commits
+
+Stop Odoo, then run:
+
 ```powershell
 cd "C:\Users\vegal\OneDrive\Desktop\odoo\odoo18\custom_addons\nut_tightening_monitor_v3"
 git pull origin main
+
 cd "C:\Users\vegal\OneDrive\Desktop\odoo\odoo18"
 .\.venv\Scripts\python.exe .\odoo-bin -c ..\conf\odoo.conf -d nut_tightening_test -u nut_tightening_monitor_v3 --stop-after-init
 ```
 
-Restart Odoo and hard refresh the browser (Ctrl+F5) after an update.
+Restart Odoo and hard-refresh the browser with **Ctrl+F5**.
 
-## Test
+## Test workflow
 
 1. Open **Nut Tightening Monitor → Assemblies & ROI Mapping**.
-2. Open the demo assembly or create an assembly and upload an image.
-3. Choose **Draw ROI**, then click and drag around each nut.
-4. Configure arm/PLC positions, encoder, torque and angle thresholds.
-5. Save the mapping and test with simulated OK/NOK results.
+2. Open **Motor Housing Demo - 8 Nuts**, or create an assembly and upload a top-view photo.
+3. Choose **Draw ROI**, then click and drag around a nut. The next nut ID and sequence are assigned automatically.
+4. Configure the selected nut's PLC/arm X/Y/Z positions, encoder count, torque limits and angle limits.
+5. Select **Save Mapping**, then test the cycle using **Start Cycle**, **Simulate OK**, and **Simulate NOK**.
 
-## Hardware note
+## Safety / hardware status
 
-This version uses simulated PLC/encoder values only. Demo positions and limits are examples, not calibrated production values. Do not use them to operate real machinery.
+PLC and encoder values in this version are simulated examples only. Torque and angle limits are not calibrated for real machinery. Do not use this prototype to operate production equipment.
+
+## Project structure
+
+The repository root is the Odoo addon directory, so it can be cloned directly as `custom_addons/nut_tightening_monitor_v3`. It does not depend on or modify `control_plan_work_instruction`, PMS, QMS, or other office-only addons.
