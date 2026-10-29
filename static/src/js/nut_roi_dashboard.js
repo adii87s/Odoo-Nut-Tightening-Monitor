@@ -358,3 +358,106 @@ export class NtmLiveDashboard extends Component {
             this.state.selectedIndex = this.state.nuts.indexOf(nut);
         }
     }
+
+    selectNut(index) {
+        this.state.selectedIndex = index;
+        this.state.interactionMode = "select";
+        this.drawCanvas();
+    }
+
+    removeSelectedNut() {
+        const nut = this.selectedNut;
+        if (!nut) return;
+        this.state.nuts.splice(this.state.selectedIndex, 1);
+        this.state.selectedIndex = this.state.nuts.length ? Math.min(this.state.selectedIndex, this.state.nuts.length - 1) : -1;
+        this.drawCanvas();
+        this.notification.add(`${nut.name} removed from the unsaved mapping. Save Mapping to apply the change.`, { type: "warning" });
+    }
+
+    async saveAssembly() {
+        if (!this.state.imageData) {
+            this.notification.add("Upload an assembly image first.", { type: "warning" });
+            return;
+        }
+        if (!this.state.nuts.length) {
+            this.notification.add("Choose Draw ROI and drag a circle around at least one nut.", { type: "warning" });
+            return;
+        }
+        const seenNames = new Set();
+        for (const [index, nut] of this.state.nuts.entries()) {
+            const name = String(nut.name || "").trim();
+            if (!name) { this.notification.add(`Enter an ID for nut ${index + 1}.`, { type: "warning" }); return; }
+            if (seenNames.has(name.toLowerCase())) { this.notification.add(`Nut ID ${name} is duplicated. Every nut must have a unique ID.`, { type: "warning" }); return; }
+            seenNames.add(name.toLowerCase());
+            if (Number(nut.torque_min) > Number(nut.torque_max) || Number(nut.angle_min) > Number(nut.angle_max)) {
+                this.notification.add(`Check min/max torque and angle values for ${name}.`, { type: "warning" }); return;
+            }
+        }
+        const encoded = this.state.imageData.split(",")[1];
+        const assemblyValues = {
+            name: String(this.state.assemblyName || this.state.imageName.replace(/\.[^.]+$/, "") || "New Assembly").trim(),
+            image: encoded,
+            image_filename: this.state.imageName,
+            image_mimetype: this.state.imageMimeType,
+            image_width: this.state.imageWidth,
+            image_height: this.state.imageHeight,
+        };
+        let id = this.state.assemblyId;
+        if (id) await this.orm.write("ntm.assembly", [id], assemblyValues);
+        else id = (await this.orm.create("ntm.assembly", [assemblyValues]))[0];
+        const payload = this.state.nuts.map((nut, index) => ({
+            id: nut.id || false,
+            name: String(nut.name || `N-${String(index + 1).padStart(2, "0")}`).trim(),
+            sequence: Number(nut.sequence) || (index + 1) * 10,
+            x: Number(nut.roi_x), y: Number(nut.roi_y), r: Number(nut.roi_r),
+            arm_x: Number(nut.arm_x) || 0, arm_y: Number(nut.arm_y) || 0, arm_z: Number(nut.arm_z) || 0,
+            encoder_position: Number(nut.encoder_position) || 0,
+            target_torque: Number(nut.target_torque) || 10, torque_min: Number(nut.torque_min), torque_max: Number(nut.torque_max),
+            target_angle: Number(nut.target_angle) || 90, angle_min: Number(nut.angle_min), angle_max: Number(nut.angle_max),
+        }));
+        await this.orm.call("ntm.assembly", "action_save_mapping", [[id], JSON.stringify(payload)]);
+        this.state.assemblies = await this.orm.searchRead("ntm.assembly", [], ["name", "reference", "state"], { order: "write_date desc, id desc" });
+        await this.loadAssembly(id);
+        this.notification.add("Assembly image, ROI circles and nut parameters saved.", { type: "success" });
+    }
+
+    async runAction(method) {
+        if (!this.state.assemblyId) {
+            this.notification.add("Save the assembly mapping before running a cycle.", { type: "warning" });
+            return;
+        }
+        if (this.state.nuts.some((nut) => !nut.id)) {
+            this.notification.add("Save Mapping first so all drawn ROIs have database records.", { type: "warning" });
+            return;
+        }
+        this.state.cycleBusy = true;
+        try {
+            await this.orm.call("ntm.assembly", method, [[this.state.assemblyId]]);
+            await this.loadAssembly(this.state.assemblyId);
+        } catch (error) {
+            this.notification.add(error.message || "The cycle action failed.", { type: "danger" });
+        } finally {
+            this.state.cycleBusy = false;
+        }
+    }
+
+    formatNumber(value, precision = 0) {
+        // Called from the Owl template; keep numeric coercion in JavaScript,
+        // not in the QWeb expression where Number may be unavailable.
+        const numeric = Number(value);
+        return (Number.isFinite(numeric) ? numeric : 0).toFixed(precision);
+    }
+
+    get selectedNut() { return this.state.nuts[this.state.selectedIndex] || null; }
+    get okCount() { return this.state.nuts.filter((n) => n.status === "ok").length; }
+    get nokCount() { return this.state.nuts.filter((n) => n.status === "nok").length; }
+    get pendingCount() { return this.state.nuts.filter((n) => ["pending", "running"].includes(n.status)).length; }
+    get progress() { return this.state.nuts.length ? Math.round(this.okCount / this.state.nuts.length * 100) : 0; }
+    get cycleStatus() {
+        const labels = { draft: "SETUP REQUIRED", mapped: "READY TO RUN", running: "IN PROGRESS", pass: "CYCLE PASS", fail: "CYCLE FAIL" };
+        return labels[this.state.assembly?.state] || "NEW ASSEMBLY";
+    }
+    get currentMessage() { return this.state.assembly?.last_plc_message || "Simulator ready — no physical PLC connected"; }
+}
+
+registry.category("actions").add("ntm_roi_dashboard_v3", NtmLiveDashboard);
