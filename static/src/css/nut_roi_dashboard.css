@@ -98,3 +98,102 @@
 .ntm_canvas_drawing .ntm_roi_canvas { cursor: crosshair; }
 .ntm_canvas_instruction { position: absolute; top: 20px; left: 20px; z-index: 2; padding: 8px 12px; border: 1px solid #c7cbf5; border-radius: 7px; color: #262b80; background: rgba(255,255,255,.95); box-shadow: 0 3px 10px rgba(28,35,64,.08); font-size: 12px; font-weight: 800; pointer-events: none; }
 .ntm_visual_footer { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; padding: 11px 14px; border-top: 1px solid #e8ebf3; background: #fcfcff; }
+.ntm_roi_steps { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; color: #737b91; font-size: 10px; font-weight: 750; }
+.ntm_step_done { color: #198b3b; }
+.ntm_step_current { color: #2b2f8f; }
+.ntm_step_wait { color: #8a93ad; }
+.ntm_step_arrow { color: #b5bbcc; font-size: 16px; }
+.ntm_legend { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; color: #68718b; font-size: 10px; }
+.ntm_legend span { display: inline-flex; gap: 5px; align-items: center; white-space: nowrap; }
+.ntm_legend i { display: inline-block; width: 9px; height: 9px; border-radius: 50%; }
+.ntm_legend_pending { background: #8a93ad; }
+.ntm_legend_current { background: #f0a500; }
+.ntm_legend_ok { background: #22b04b; }
+.ntm_legend_nok { background: #dc2626; }
+
+.ntm_right_column { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.ntm_sequence_panel { flex: 0 0 auto; }
+.ntm_compact_heading { min-height: 55px; padding: 10px 13px; }
+.ntm_count_pill, .ntm_selected_id { display: inline-flex; align-items: center; padding: 4px 9px; border-radius: 6px; color: #2b2f8f; background: #e9ebff; font-size: 10px; font-weight: 850; white-space: nowrap; }
+.ntm_sequence_list { max-height: 205px; overflow: auto; padding: 5px 8px 8px; }
+.ntm_sequence_row { display: flex; width: 100%; align-items: center; gap: 9px; min-height: 48px; margin: 3px 0; padding: 6px 8px; text-align: left; border: 1px solid transparent; border-radius: 7px; background: #fff; color: var(--ntm-ink); }
+.ntm_sequence_row:hover { background: #f6f7fc; border-color: #e0e4f2; }
+.ntm_sequence_row.is_selected { background: #eef0ff; border-color: #949be7; box-shadow: inset 3px 0 #2b2f8f; }
+.ntm_sequence_number { display: grid; flex: 0 0 30px; place-items: center; width: 30px; height: 30px; border: 1px solid #dfe3ee; border-radius: 7px; color: #68718b; background: #f7f8fc; font-size: 10px; font-weight: 900; }
+.ntm_sequence_row.is_ok .ntm_sequence_number { color: #166534; background: #e9f6ee; border-color: #bde7c9; }
+.ntm_sequence_row.is_nok .ntm_sequence_number { color: #991b1b; background: #fff0f0; border-color: #f1bebe; }
+.ntm_sequence_text { display: flex; flex: 1 1 auto; flex-direction: column; min-width: 0; gap: 3px; }
+.ntm_sequence_text strong { font-size: 12px; line-height: 1.1; }
+.ntm_sequence_text small { color: #737b91; font-size: 10px; }
+.ntm_status_pill { padding: 3px 6px; border-radius: 99px; color: #667085; background: #edf0f5; font-size: 9px; font-weight: 900; }
+.ntm_status_pill.status_ok { color: #166534; background: #dcfce7; }
+.ntm_status_pill.status_nok { color: #991b1b; background: #fee2e2; }
+.ntm_status_pill.status_running { color: #9a6700; background: #fff4d6; }
+.ntm_empty_state { display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 24px 12px; color: #7b8399; text-align: center; }
+.ntm_empty_state > i { margin-bottom: 3px; color: #2b2f8f; font-size: 26px; }
+.ntm_empty_state strong { color: #26305a; font-size: 12px; }
+.ntm_empty_state span { max-width: 250px; font-size: 11px; line-height: 1.4; }
+
+.ntm_setup_panel { display: flex; flex: 1 1 auto; flex-direction: column; min-height: 0; }
+.ntm_setup_scroller { max-height: 700px; overflow: auto; }
+.ntm_form_section { padding: 12px 13px; border-bottom: 1px solid #edf0f6; }
+.ntm_form_section_title { display: flex; align-items: center; gap: 7px; margin-bottom: 10px; color: #26305a; font-size: 11px; font-weight: 900; }
+.ntm_form_section_title i { display: inline-grid; place-items: center; width: 23px; height: 23px; border-radius: 6px; color: #2b2f8f; background: #eff0ff; }
+.ntm_fields_grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px 10px; }
+.ntm_three_fields { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.ntm_field { display: flex; flex-direction: column; gap: 4px; min-width: 0; margin: 0; }
+.ntm_field_wide { grid-column: 1 / -1; }
+.ntm_field > span { color: #4b5470; font-size: 10px; font-weight: 750; }
+.ntm_field .form-control { width: 100%; min-width: 0; min-height: 33px; padding: 5px 8px; border: 1px solid #d3d8e6; border-radius: 6px; color: #1c2340; background: #fff; font-size: 12px; font-weight: 650; }
+.ntm_field .form-control:focus { border-color: #6b72d6; box-shadow: 0 0 0 2px #e9ebff; outline: 0; }
+.ntm_field_help { display: flex; gap: 6px; margin-top: 10px; padding: 8px 9px; border: 1px solid #f3dfa6; border-radius: 6px; color: #8b6617; background: #fff8e6; font-size: 10px; line-height: 1.4; }
+.ntm_live_result { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; padding: 11px 13px; background: #f8f9fd; }
+.ntm_live_result > div { display: flex; flex-direction: column; gap: 4px; min-width: 0; padding: 8px; border: 1px solid #e3e7f1; border-radius: 7px; background: #fff; }
+.ntm_live_result span { color: #737b91; font-size: 9px; font-weight: 700; }
+.ntm_live_result strong { color: #1c2340; font-size: 12px; font-weight: 850; overflow-wrap: anywhere; }
+.ntm_live_result .result_ok { color: #15803d; }
+.ntm_live_result .result_nok { color: #dc2626; }
+.ntm_live_result .result_pending { color: #737b91; }
+.ntm_live_result .result_running { color: #b77900; }
+.ntm_failure_reason { grid-column: 1 / -1; margin: 2px 0 0; padding: 7px 9px; border-radius: 6px; color: #991b1b; background: #fff0f0; font-size: 10px; }
+.ntm_setup_footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: auto; padding: 10px 13px; border-top: 1px solid #e8ebf3; background: #fcfcff; }
+.ntm_setup_footer > span { color: #737b91; font-size: 10px; }
+.ntm_setup_footer > span i { margin-right: 4px; color: #22b04b; }
+.ntm_setup_blank { display: flex; flex: 1 1 auto; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 30px 20px; text-align: center; color: #737b91; }
+.ntm_setup_blank > i { color: #2b2f8f; font-size: 28px; }
+.ntm_setup_blank strong { color: #26305a; font-size: 13px; }
+.ntm_setup_blank span { max-width: 260px; font-size: 11px; line-height: 1.5; }
+
+.ntm_status_footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-top: 12px; padding: 11px 14px; border: 1px solid var(--ntm-border); border-radius: 10px; background: #fff; color: #68718b; font-size: 10px; }
+.ntm_footer_mode, .ntm_footer_message { display: flex; align-items: center; gap: 7px; }
+.ntm_footer_mode strong { color: #26305a; letter-spacing: .5px; }
+.ntm_sim_dot { width: 8px; height: 8px; border-radius: 50%; background: #f0a500; box-shadow: 0 0 0 3px #fff4d6; }
+.ntm_footer_message i { color: #2b2f8f; }
+.ntm_footer_safety { color: #8a6a22; }
+
+@media (max-width: 1350px) {
+    .ntm_mes_header { align-items: flex-start; flex-direction: column; }
+    .ntm_header_actions { justify-content: flex-start; }
+    .ntm_jobbar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .ntm_work_area { grid-template-columns: minmax(0, 1.3fr) minmax(345px, .9fr); }
+    .ntm_canvas_frame { min-height: 380px; }
+}
+@media (max-width: 980px) {
+    .o_ntm_dashboard { padding: 8px; }
+    .ntm_kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .ntm_kpi_progress { grid-column: 1 / -1; }
+    .ntm_work_area { grid-template-columns: minmax(0, 1fr); }
+    .ntm_right_column { display: grid; grid-template-columns: minmax(0, 1fr); }
+    .ntm_setup_scroller { max-height: none; }
+    .ntm_canvas_frame { min-height: 260px; }
+}
+@media (max-width: 600px) {
+    .ntm_jobbar { grid-template-columns: minmax(0, 1fr); }
+    .ntm_mes_op { font-size: 18px; }
+    .ntm_header_actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); width: 100%; }
+    .ntm_header_actions .ntm_btn { white-space: normal; }
+    .ntm_image_tools { justify-content: flex-start; }
+    .ntm_visual_footer { align-items: flex-start; flex-direction: column; }
+    .ntm_three_fields { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .ntm_live_result { grid-template-columns: 1fr; }
+}
