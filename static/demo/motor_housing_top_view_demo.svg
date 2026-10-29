@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800">
+  <defs>
+    <linearGradient id="body" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b7c0c9"/><stop offset="1" stop-color="#697681"/></linearGradient>
+    <linearGradient id="plate" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#87949e"/><stop offset="1" stop-color="#4f5b66"/></linearGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="#65717c" stroke-width="1" opacity=".5"/></pattern>
+  </defs>
+  <rect width="1200" height="800" fill="#3a424c"/><rect width="1200" height="800" fill="url(#grid)"/>
+  <rect x="230" y="120" width="740" height="560" rx="70" fill="url(#body)" stroke="#e0e6ea" stroke-width="10"/>
+  <rect x="290" y="175" width="620" height="450" rx="48" fill="#5f6b76" stroke="#b4bdc5" stroke-width="6"/>
+  <rect x="350" y="220" width="500" height="360" rx="35" fill="url(#plate)" stroke="#abb6be" stroke-width="5"/>
+  <g fill="#aab5bd" stroke="#d4dbe0" stroke-width="3">
+    <rect x="365" y="265" width="470" height="14" rx="6"/><rect x="365" y="330" width="470" height="14" rx="6"/>
+    <rect x="365" y="395" width="470" height="14" rx="6"/><rect x="365" y="460" width="470" height="14" rx="6"/>
+    <rect x="365" y="525" width="470" height="14" rx="6"/>
+  </g>
+  <circle cx="600" cy="410" r="130" fill="#47535e" stroke="#c4cbd0" stroke-width="12"/>
+  <circle cx="600" cy="410" r="70" fill="#252d35" stroke="#9ca7af" stroke-width="8"/>
+  <circle cx="600" cy="410" r="20" fill="#c4cbd0" stroke="#e6ebee" stroke-width="4"/>
+  <g id="bolt-heads" stroke="#ecf0f2" stroke-width="5">
+    <g transform="translate(350 220)"><circle r="25" fill="#303943"/><circle r="13" fill="#b6c0c7" stroke="#2e3740" stroke-width="3"/><path d="M-10-6L0-12L10-6L10 6L0 12L-10 6Z" fill="#d8dfe3" stroke="#37414a" stroke-width="2"/></g>
+    <g transform="translate(600 220)"><circle r="25" fill="#303943"/><circle r="13" fill="#b6c0c7" stroke="#2e3740" stroke-width="3"/><path d="M-10-6L0-12L10-6L10 6L0 12L-10 6Z" fill="#d8dfe3" stroke="#37414a" stroke-width="2"/></g>
+    <g transform="translate(850 220)"><circle r="25" fill="#303943"/><circle r="13" fill="#b6c0c7" stroke="#2e3740" stroke-width="3"/><path d="M-10-6L0-12L10-6L10 6L0 12L-10 6Z" fill="#d8dfe3" stroke="#37414a" stroke-width="2"/></g>
+    <g transform="translate(900 400)"><circle r="25" fill="#303943"/><circle r="13" fill="#b6c0c7" stroke="#2e3740" stroke-width="3"/><path d="M-10-6L0-12L10-6L10 6L0 12L-10 6Z" fill="#d8dfe3" stroke="#37414a" stroke-width="2"/></g>
+    <g transform="translate(850 580)"><circle r="25" fill="#303943"/><circle r="13" fill="#b6c0c7" stroke="#2e3740" stroke-width="3"/><path d="M-10-6L0-12L10-6L10 6L0 12L-10 6Z" fill="#d8dfe3" stroke="#37414a" stroke-width="2"/></g>
+    <g transform="translate(600 580)"><circle r="25" fill="#303943"/><circle r="13" fill="#b6c0c7" stroke="#2e3740" stroke-width="3"/><path d="M-10-6L0-12L10-6L10 6L0 12L-10 6Z" fill="#d8dfe3" stroke="#37414a" stroke-width="2"/></g>
+    <g transform="translate(350 580)"><circle r="25" fill="#303943"/><circle r="13" fill="#b6c0c7" stroke="#2e3740" stroke-width="3"/><path d="M-10-6L0-12L10-6L10 6L0 12L-10 6Z" fill="#d8dfe3" stroke="#37414a" stroke-width="2"/></g>
+    <g transform="translate(300 400)"><circle r="25" fill="#303943"/><circle r="13" fill="#b6c0c7" stroke="#2e3740" stroke-width="3"/><path d="M-10-6L0-12L10-6L10 6L0 12L-10 6Z" fill="#d8dfe3" stroke="#37414a" stroke-width="2"/></g>
+  </g>
+  <rect x="30" y="25" width="470" height="65" rx="12" fill="#18202a" stroke="#aab5bf" stroke-width="2"/>
+  <text x="50" y="66" fill="#f4f6f8" font-family="Segoe UI,Arial,sans-serif" font-size="26" font-weight="700">DEMO MOTOR HOUSING</text>
+  <text x="30" y="765" fill="#e5e9ec" font-family="Segoe UI,Arial,sans-serif" font-size="16">Synthetic training image — not a real machine drawing</text>
+</svg>
