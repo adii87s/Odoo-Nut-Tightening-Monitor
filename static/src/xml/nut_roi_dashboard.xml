@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="nut_tightening_monitor_v3.NtmLiveDashboard" owl="1">
+        <div class="o_ntm_dashboard o_cpwi_mes_aligned">
+            <header class="ntm_mes_header">
+                <div class="ntm_mes_title">
+                    <div class="ntm_mes_title_top">
+                        <span class="ntm_mes_name">MANUFACTURING / FASTENING WORKSTATION</span>
+                        <span t-att-class="'ntm_run_badge ntm_run_' + (state.assembly ? state.assembly.state : 'draft')" t-esc="cycleStatus"/>
+                    </div>
+                    <div class="ntm_mes_op">Nut Tightening Monitor <span class="ntm_header_sep">/</span> <strong t-esc="state.assemblyName || 'New Assembly Setup'"/></div>
+                    <div class="ntm_mes_sub">Upload an assembly image, draw and number each nut ROI, then configure the robot/PLC position and tightening limits.</div>
+                </div>
+                <div class="ntm_header_actions">
+                    <button class="ntm_btn ntm_btn_light" t-on-click="saveAssembly"><i class="fa fa-floppy-o"/> Save Mapping</button>
+                    <button class="ntm_btn ntm_btn_green" t-on-click="() => runAction('action_start_cycle')" t-att-disabled="state.cycleBusy"><i class="fa fa-play"/> Start Cycle</button>
+                    <button class="ntm_btn ntm_btn_amber" t-on-click="() => runAction('action_simulate_ok')" t-att-disabled="state.cycleBusy"><i class="fa fa-check"/> Simulate OK</button>
+                    <button class="ntm_btn ntm_btn_red" t-on-click="() => runAction('action_simulate_nok')" t-att-disabled="state.cycleBusy"><i class="fa fa-times"/> Simulate NOK</button>
+                    <button class="ntm_btn ntm_btn_light_outline" t-on-click="() => runAction('action_reset_cycle')" t-att-disabled="state.cycleBusy"><i class="fa fa-refresh"/> Reset</button>
+                </div>
+            </header>
+
+            <section class="ntm_jobbar">
+                <div class="ntm_job_field ntm_job_assembly">
+                    <label for="ntm_assembly_select">Assembly Record</label>
+                    <select id="ntm_assembly_select" class="form-select" t-on-change="onAssemblyChange">
+                        <option value="">+ New assembly / upload new image</option>
+                        <t t-foreach="state.assemblies" t-as="a" t-key="a.id">
+                            <option t-att-value="a.id" t-att-selected="a.id === state.assemblyId"><t t-esc="a.reference"/> — <t t-esc="a.name"/></option>
+                        </t>
+                    </select>
+                </div>
+                <div class="ntm_job_field ntm_job_name">
+                    <label for="ntm_assembly_name">Assembly Name</label>
+                    <input id="ntm_assembly_name" class="form-control" type="text" placeholder="e.g. Motor Housing - Variant A" t-model="state.assemblyName"/>
+                </div>
+                <div class="ntm_job_field ntm_job_image">
+                    <label for="ntm_image_file">Assembly Image</label>
+                    <input id="ntm_image_file" class="form-control" type="file" accept="image/*" t-ref="imageFile" t-on-change="onImageSelected"/>
+                    <small t-if="state.imageName" class="ntm_file_name"><i class="fa fa-picture-o"/> <t t-esc="state.imageName"/> <span t-if="state.imageWidth &amp;&amp; state.imageHeight">· <t t-esc="state.imageWidth"/> × <t t-esc="state.imageHeight"/> px</span></small>
+                </div>
+                <div class="ntm_job_hint"><span class="ntm_hint_icon"><i class="fa fa-info"/></span><span><strong>Operator workflow</strong><br/>Image → Draw circle → Assign nut ID → Set PLC/arm position → Set torque and angle → Save.</span></div>
+            </section>
+
+            <section class="ntm_kpis">
+                <div class="ntm_kpi"><div class="ntm_kpi_label">Mapped Nuts</div><div class="ntm_kpi_value"><t t-esc="state.nuts.length"/><small> ROIs</small></div><div class="ntm_kpi_note">Defined on current image</div></div>
+                <div class="ntm_kpi ntm_kpi_ok"><div class="ntm_kpi_label">Tightening OK</div><div class="ntm_kpi_value" t-esc="okCount"/><div class="ntm_kpi_note">Within configured limits</div></div>
+                <div class="ntm_kpi ntm_kpi_nok"><div class="ntm_kpi_label">Tightening NOK</div><div class="ntm_kpi_value" t-esc="nokCount"/><div class="ntm_kpi_note">Torque or angle out of range</div></div>
+                <div class="ntm_kpi"><div class="ntm_kpi_label">Pending / Current</div><div class="ntm_kpi_value" t-esc="pendingCount"/><div class="ntm_kpi_note">Awaiting tightening result</div></div>
+                <div class="ntm_kpi ntm_kpi_progress"><div class="ntm_kpi_label">Cycle Completion</div><div class="ntm_kpi_value"><t t-esc="progress"/><small>%</small></div><div class="ntm_progress_track"><span t-att-style="'width:' + progress + '%'"/></div><div class="ntm_kpi_note"><t t-esc="okCount"/> of <t t-esc="state.nuts.length"/> nuts completed OK</div></div>
+            </section>
+
+            <main class="ntm_work_area">
+                <section class="ntm_panel ntm_visual_panel">
+                    <div class="ntm_panel_heading">
+                        <div><span class="ntm_section_eyebrow">STEP 1</span><h2>Assembly Image / ROI Editor</h2><p>Draw each circle around the nut. Its ID and sequence are assigned as soon as you finish drawing.</p></div>
+                        <div class="ntm_image_tools">
+                            <button t-att-class="'ntm_tool_btn ' + (state.interactionMode === 'select' ? 'is_active' : '')" t-on-click="() => setInteractionMode('select')"><i class="fa fa-mouse-pointer"/> Select / Edit</button>
+                            <button t-att-class="'ntm_tool_btn ntm_tool_primary ' + (state.interactionMode === 'draw' ? 'is_active' : '')" t-on-click="() => setInteractionMode('draw')"><i class="fa fa-circle-o"/> Draw ROI</button>
+                            <button class="ntm_tool_btn ntm_tool_danger" t-on-click="removeSelectedNut" t-att-disabled="!selectedNut"><i class="fa fa-trash-o"/> Remove Selected</button>
+                        </div>
+                    </div>
+                    <div t-att-class="'ntm_canvas_frame ' + (state.interactionMode === 'draw' ? 'ntm_canvas_drawing' : '')">
+                        <canvas t-ref="roiCanvas" class="ntm_roi_canvas" width="1200" height="780"
+                            t-on-pointerdown="onCanvasPointerDown" t-on-pointermove="onCanvasPointerMove" t-on-pointerup="onCanvasPointerUp" t-on-pointercancel="onCanvasPointerUp"/>
+                        <div t-if="state.imageData &amp;&amp; state.interactionMode === 'draw'" class="ntm_canvas_instruction"><i class="fa fa-crosshairs"/> Click and drag to draw the nut circle</div>
+                    </div>
+                    <div class="ntm_visual_footer">
+                        <div class="ntm_roi_steps"><span class="ntm_step_done"><i class="fa fa-check-circle"/> Upload image</span><span class="ntm_step_arrow">›</span><span t-att-class="state.nuts.length ? 'ntm_step_done' : 'ntm_step_current'"><i t-att-class="state.nuts.length ? 'fa fa-check-circle' : 'fa fa-circle-o'"/> Draw nut ROIs (<t t-esc="state.nuts.length"/>)</span><span class="ntm_step_arrow">›</span><span t-att-class="selectedNut ? 'ntm_step_current' : 'ntm_step_wait'"><i class="fa fa-sliders"/> Configure selected nut</span></div>
+                        <div class="ntm_legend"><span><i class="ntm_legend_pending"/> Pending</span><span><i class="ntm_legend_current"/> Current sequence</span><span><i class="ntm_legend_ok"/> OK</span><span><i class="ntm_legend_nok"/> NOK</span></div>
+                    </div>
+                </section>
+
+                <aside class="ntm_right_column">
+                    <section class="ntm_panel ntm_sequence_panel">
